@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Message
 import android.util.Log
+import com.xbrid.freefalldetector.utils.Constants
 
 
 class Accelerometer(private val mSensorManager: SensorManager, s: Sensor?, h: Handler) :

@@ -2,31 +2,49 @@ package com.xbrid.freefalldetector.services
 
 import android.app.IntentService
 import android.content.Intent
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.google.android.gms.location.ActivityRecognitionResult
 import com.google.android.gms.location.DetectedActivity
-import com.xbrid.freefalldetector.sensor.Constants.Companion.freeFallDetected
+import com.xbrid.freefalldetector.sensor.TransitionRecognition
+import com.xbrid.freefalldetector.sensor.TransitionRecognitionUtils.toActivityString
+import com.xbrid.freefalldetector.sensor.TransitionRecognitionUtils.toTransitionType
+import com.xbrid.freefalldetector.utils.Constants.Companion.freeFallDetected
+import com.xbrid.freefalldetector.utils.showToast
+import java.text.SimpleDateFormat
+import java.util.*
 
 class DetectedActivitiesIntentService :
     IntentService(DetectedActivitiesIntentService::class.java.simpleName) {
 
-    override fun onHandleIntent(intent: Intent?) {
-        val result = ActivityRecognitionResult.extractResult(intent)
-
-        // Get the list of the probable activities associated with the current state of the
-        // device. Each activity is associated with a confidence level, which is an int between
-        // 0 and 100.
-        val detectedActivities = result.probableActivities as ArrayList<*>
-
-        for (activity in detectedActivities) {
-            broadcastActivity(activity as DetectedActivity)
-        }
+    override fun onCreate() {
+        super.onCreate()
+        initTransitionRecognition()
     }
 
-    private fun broadcastActivity(activity: DetectedActivity) {
-        val intent = Intent(freeFallDetected)
-        intent.putExtra("type", activity.type)
-        intent.putExtra("confidence", activity.confidence)
-        LocalBroadcastManager.getInstance(this).sendBroadcast(intent)
+    override fun onHandleIntent(intent: Intent?) {
+        val result = ActivityRecognitionResult.extractResult(intent)
+        val detectedActivities: ArrayList<DetectedActivity>? =
+            result?.probableActivities as? ArrayList<DetectedActivity>
+        detectedActivities?.forEach {
+
+            val theActivity = toActivityString(it.type)
+            val transType = toTransitionType(it.type)
+            showToast(
+                "Transition: "
+                        + theActivity + " (" + transType + ")" + "   "
+                        + SimpleDateFormat("HH:mm:ss", Locale.UK)
+                    .format(Date()) + "\n\n"
+            )
+            // store info
+        }
+        sendBroadcast(getBroadCastIntent())
+    }
+
+    private fun getBroadCastIntent(): Intent? {
+        return Intent(freeFallDetected)
+    }
+
+    private fun initTransitionRecognition() {
+        val mTransitionRecognition = TransitionRecognition(this)
+        mTransitionRecognition.startTracking()
     }
 }
