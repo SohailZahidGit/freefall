@@ -10,7 +10,6 @@ import android.os.Message
 import android.util.Log
 import com.xbrid.freefalldetector.utils.Constants
 
-
 class Accelerometer(private val mSensorManager: SensorManager, s: Sensor?, h: Handler) :
     SensorEventListener {
     private val mSensor: Sensor?
@@ -23,6 +22,7 @@ class Accelerometer(private val mSensorManager: SensorManager, s: Sensor?, h: Ha
     private var mAccelLast = SensorManager.GRAVITY_EARTH
     private val mAccel = 0.00f
     private val mWindow: Window
+
     fun startListening() {
         if (mSensor == null) { // Send a failure message back to the Activity
             val msg: Message = mHandler.obtainMessage(Constants.MESSAGE_TOAST)
