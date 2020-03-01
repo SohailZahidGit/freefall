@@ -1,5 +1,6 @@
 package com.xbrid.freefalldetector.sensor
 
+import android.content.Context
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
@@ -8,35 +9,35 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Message
 import android.util.Log
-import com.xbrid.freefalldetector.utils.Constants
+import com.xbrid.freefalldetector.db.DatabaseHelper
+import com.xbrid.freefalldetector.utils.DetectionEvent
+import java.sql.Timestamp
+import java.time.Duration
+import kotlin.math.abs
+import kotlin.math.sqrt
 
-class Accelerometer(private val mSensorManager: SensorManager, s: Sensor?, h: Handler) :
-    SensorEventListener {
-    private val mSensor: Sensor?
+class Accelerometer(
+    private val context: Context,
+    private val mSensorManager: SensorManager,
+    private val mSensor: Sensor,
     private val mHandler: Handler
-    private var lastUpdate: Long = -1
-    private lateinit var accel_values: FloatArray
-    private var last_accel_values: FloatArray? = null
-    //    private int fallThreshold = 10;
+) :
+    SensorEventListener {
+    private var fallThreshold = 10
     private var mAccelCurrent = SensorManager.GRAVITY_EARTH
     private var mAccelLast = SensorManager.GRAVITY_EARTH
-    private val mAccel = 0.00f
-    private val mWindow: Window
+    private var mAccel = 0.00f
+    private var duration: Long = System.currentTimeMillis()
+    private val DETECTION_CASE_X = 0
+    private val DETECTION_CASE_Y = 1
+    private val DETECTION_CASE_Z = 2
 
     fun startListening() {
-        if (mSensor == null) { // Send a failure message back to the Activity
-            val msg: Message = mHandler.obtainMessage(Constants.MESSAGE_TOAST)
-            val bundle = Bundle()
-            bundle.putString(Constants.TOAST, "Unable to find accelerometer")
-            msg.setData(bundle)
-            mHandler.sendMessage(msg)
-        } else {
-            mSensorManager.registerListener(
-                this,
-                mSensor,
-                SensorManager.SENSOR_DELAY_FASTEST
-            ) //sampling every 0.2sec => 5Hz
-        }
+        mSensorManager.registerListener(
+            this,
+            mSensor,
+            SensorManager.SENSOR_DELAY_FASTEST
+        ) //sampling every 0.2sec => 5Hz
     }
 
     fun stopListening() {
@@ -46,61 +47,64 @@ class Accelerometer(private val mSensorManager: SensorManager, s: Sensor?, h: Ha
     override fun onAccuracyChanged(
         sensor: Sensor?,
         accuracy: Int
-    ) { /*Safe not to implement*/
+    ) {
     }
 
     override fun onSensorChanged(event: SensorEvent) {
-        val curTime = System.currentTimeMillis()
-        if (event.sensor.type == Sensor.TYPE_ACCELEROMETER) { // sampling frequency f= 10Hz.
-            if (curTime - lastUpdate > CHECK_INTERVAL) {
-                val diffTime = curTime - lastUpdate
-                lastUpdate = curTime
-                accel_values = event.values.clone()
-                if (last_accel_values != null) {
-                    mAccelLast = mAccelCurrent
-                    mAccelCurrent = Math.sqrt(
-                        accel_values[0] * accel_values[0] + accel_values[1] * accel_values[1] + (accel_values[2] * accel_values[2]).toDouble()
-                    ).toFloat()
-                    // Initial approach
-//                    float delta = mAccelCurrent - mAccelLast;
-//                    mAccel = mAccel * 0.9f + delta;
-// Send the value back to the Activity
-                    var msg: Message = mHandler.obtainMessage(Constants.MESSAGE_CHANGED)
-                    val bundle = Bundle()
-                    bundle.putFloat(Constants.VALUE, mAccelCurrent)
-                    msg.setData(bundle)
-                    mHandler.sendMessage(msg)
-                    mWindow.add(mAccelCurrent)
-                    if (mWindow.isFull && mWindow.isFallDetected) {
-                        Log.w(TAG, "Fall detected by window class")
-                        mWindow.clear()
-                        msg = mHandler.obtainMessage(Constants.MESSAGE_EMERGENCY)
-                        mHandler.sendMessage(msg)
-                    }
-                    //                    Inital approach
-//                    =====================================
-//                    if (mAccel > fallThreshold) {
-//
-//                        Log.w(TAG, "acceleration greater than threshold");
-//                        // Send the value back to the Activity
-//                        msg = mHandler.obtainMessage(Constants.MESSAGE_EMERGENCY);
-//                        mHandler.sendMessage(msg);
+        duration = System.currentTimeMillis()
+        val ax = event.values[0]
+        val ay = event.values[1]
+        val az = event.values[2]
+        mAccelLast = mAccelCurrent
+        mAccelCurrent = sqrt((ax * ax + ay * ay + az * az).toDouble()).toFloat()
+        val delta = mAccelCurrent - mAccelLast.toDouble()
+        mAccel = mAccel * 0.9f + delta.toFloat()
+        val isFreeFallDetected: Boolean = compare(ax.toInt(), ay.toInt(), az.toInt())
+        handleCases(isFreeFallDetected)
+    }
+
+    private fun handleCases(isFreeFallDetected: Boolean) {
+        if (isFreeFallDetected) {
+            if ((mAccelLast - mAccelCurrent) > fallThreshold) {
+//                mHandler.dispatchMessage(Message().apply {
+//                    data.apply {
+//                        Bundle().apply {
+//                            putBoolean("freeFallDetected", true)
+//                        }
 //                    }
-                }
-                last_accel_values = accel_values.clone()
+//                })
+                mHandler.postDelayed(Runnable {
+                    mHandler.dispatchMessage(Message().apply {
+                        data.apply {
+                            Bundle().apply {
+                                putBoolean("freeFallDetected", true)
+                            }
+                        }
+                    })
+                }, 1000)
+                duration = System.currentTimeMillis() - duration
+//                saveRecordIntoDB(duration = duration.toString())
             }
         }
     }
 
-    companion object {
-        const val TAG = "Accelerometer"
-        private const val CHECK_INTERVAL = 100 // [msec]
+    private fun compare(ax: Int, ay: Int, az: Int): Boolean {
+        var ax = ax
+        var ay = ay
+        var az = az
+        ax = abs(ax)
+        ay = abs(ay)
+        az = abs(az)
+        if (ax > ay) {
+            if (ax > az) return true
+        } else return true
+        return false
     }
 
-    init {
-        mSensor = s
-        mHandler = h
-        mWindow =
-            Window(1000 / CHECK_INTERVAL) //sampling for 1 sec
+    private fun saveRecordIntoDB(duration: String) {
+        val db = DatabaseHelper(context)
+        val tsLong = System.currentTimeMillis() / 1000
+        val ts = tsLong.toString()
+        db.addEvent(DetectionEvent(ts, duration))
     }
 }

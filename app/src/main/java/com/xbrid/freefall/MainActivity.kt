@@ -6,6 +6,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import com.xbrid.freefalldetector.db.DatabaseHelper
 import com.xbrid.freefalldetector.services.DetectedActivitiesIntentService
 import com.xbrid.freefalldetector.utils.Constants
 import com.xbrid.freefalldetector.utils.showToast
@@ -30,7 +31,8 @@ class MainActivity : AppCompatActivity() {
                     ignoreCase = true
                 )
             ) {
-                showToast("onReceive")
+                val size = DatabaseHelper(this@MainActivity).getAllEvents()?.size
+                showToast(size.toString())
             }
         }
     }
