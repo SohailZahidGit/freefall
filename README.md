@@ -1,5 +1,3 @@
-# freefall
-
 Free Fall Detector
 ======================
 
@@ -9,20 +7,24 @@ when free fall detect there might some false/positive result based on sensor inf
 
 When detection is happened we will store free fall duration and stamp in database.
 
-Sample
+Setup
 ======
 
-<b>Setup</b>
-
-To use `FreeFallDetector` you have to do given steps:
+To use `FreeFallDetector` follow given instructions
  
- - Application class:  
-     Extend your application class with `FreeFallApplication` class which will initialize
-     database
+ - Extend your application class with `FreeFallApplication` class which will initialize
+     free fall detector.
      
-       ```xml
-      android:name=".utils.FreeFallApplication"
-         ```
+     ```xml
+             <application android:name="com.xbrid.freefalldetector.utils.FreeFallApplication">
+                
+             </application>
+     ```
+
+```kotlin
+class MyApplication : FreeFallApplication()
+               
+```
     
  - Register receiver:  
      allows you to set the maximum scale of center top page.
