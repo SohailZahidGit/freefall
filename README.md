@@ -13,23 +13,23 @@ Setup
 To use `FreeFallDetector` follow given instructions
  
  - Extend your application class with `FreeFallApplication` class which will initialize
-     free fall detector.
+     free fall detector module.
      
 ```xml
 <application android:name="com.xbrid.freefalldetector.utils.FreeFallApplication">
 <!-- other stuff here -->
+
 </application>
 ```
 
-or
+or extend your application class with FreeFallApplication
 
 ```kotlin
-class MyApplication : FreeFallApplication()
-               
+class MyApplication : FreeFallApplication()      
 ```
     
  - Register receiver:  
-     allows you to set the maximum scale of center top page.
+     To get free fall detection callback when your app is on foreground please receiver in manifest.
      
 ```xml
 <receiver android:name=".receiver.FreeFallDetectReceiver">
@@ -38,8 +38,8 @@ class MyApplication : FreeFallApplication()
    </intent-filter>
 </receiver>
 ```
-    
-You can get the list of all detection like this.
+ - Retrieve detection list:   
+     You can get the list of all detection with given statement.
   
 ```kotlin
 val detectionList = DatabaseHelper(context).getAllEvents()
