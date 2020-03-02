@@ -15,6 +15,11 @@ To use `FreeFallDetector` follow given instructions
  - Extend your application class with `FreeFallApplication` class which will initialize
      free fall detector module.
      
+```kotlin
+class MyApplication : FreeFallApplication()      
+```
+or declare it in manifest
+
 ```xml
 <application android:name="com.xbrid.freefalldetector.utils.FreeFallApplication">
 <!-- other stuff here -->
@@ -22,13 +27,8 @@ To use `FreeFallDetector` follow given instructions
 </application>
 ```
 
-or extend your application class with FreeFallApplication
-
-```kotlin
-class MyApplication : FreeFallApplication()      
-```
-    
  - Register receiver:  
+ 
      To get free fall detection callback when your app is on foreground please receiver in manifest.
      
 ```xml
@@ -39,11 +39,11 @@ class MyApplication : FreeFallApplication()
 </receiver>
 ```
  - Retrieve detection list:   
+ 
      You can get the list of all detection with given statement.
   
 ```kotlin
-val detectionList = DatabaseHelper(context).getAllEvents()
-               
+val detectionList = DatabaseHelper(context).getAllEvents()        
 ```
 
 Other methods check out in sample.
@@ -56,5 +56,5 @@ To report a specific problem or feature request, [open a new issue on Github](ht
 Author
 ======
 
-Created by [Sohail Zahid](https://github.com/SohailZahidGit) - [@gigamole](mailto:sohail.bsse@gmail.com)
+Created by [Sohail Zahid](https://github.com/SohailZahidGit) - [@Gmail](mailto:sohail.bsse@gmail.com)
 
