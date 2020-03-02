@@ -1,4 +1,4 @@
-package com.xbrid.freefalldetector.receiver
+package com.xbrid.freefall
 
 import android.content.BroadcastReceiver
 import android.content.Context

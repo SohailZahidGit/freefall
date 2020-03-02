@@ -23,6 +23,11 @@
             </intent-filter>
         </activity>
 
+        <receiver android:name=".FreeFallDetectReceiver">
+            <intent-filter>
+                <action android:name="free.fall.detected" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

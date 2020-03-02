@@ -57,8 +57,6 @@ class Accelerometer(
         val az = event.values[2]
         mAccelLast = mAccelCurrent
         mAccelCurrent = sqrt((ax * ax + ay * ay + az * az).toDouble()).toFloat()
-        val delta = mAccelCurrent - mAccelLast.toDouble()
-        mAccel = mAccel * 0.9f + delta.toFloat()
         val isFreeFallDetected: Boolean = compare(ax.toInt(), ay.toInt(), az.toInt())
         handleCases(isFreeFallDetected)
     }
@@ -66,13 +64,6 @@ class Accelerometer(
     private fun handleCases(isFreeFallDetected: Boolean) {
         if (isFreeFallDetected) {
             if ((mAccelLast - mAccelCurrent) > fallThreshold) {
-//                mHandler.dispatchMessage(Message().apply {
-//                    data.apply {
-//                        Bundle().apply {
-//                            putBoolean("freeFallDetected", true)
-//                        }
-//                    }
-//                })
                 mHandler.postDelayed(Runnable {
                     mHandler.dispatchMessage(Message().apply {
                         data.apply {

@@ -22,10 +22,5 @@
             </intent-filter>
         </receiver>
 
-        <receiver android:name=".receiver.FreeFallDetectReceiver">
-            <intent-filter>
-                <action android:name="com.xbrid.freefalldetector.TRANSITION_RECOGNITION" />
-            </intent-filter>
-        </receiver>
     </application>
 </manifest>
