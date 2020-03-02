@@ -53,6 +53,11 @@ Getting Help
 
 To report a specific problem or feature request, [open a new issue on Github](https://github.com/SohailZahidGit/freefall/issues/new).
 
+Learn More
+==========
+
+To know more about this topic checkout this link, [Detector document](https://dergipark.org.tr/tr/download/article-file/800065).
+
 Author
 ======
 
