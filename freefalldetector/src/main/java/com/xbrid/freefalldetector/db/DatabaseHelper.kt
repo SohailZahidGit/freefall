@@ -38,8 +38,8 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, "FreeFallDB",
         return id
     }
 
-    fun getAllEvents(): List<DetectionEvent>? {
-        val events: MutableList<DetectionEvent> = ArrayList()
+    fun getAllEvents(): ArrayList<DetectionEvent> {
+        val events: ArrayList<DetectionEvent> = ArrayList()
         val query = "SELECT * FROM $tableFreeFall"
         val db: SQLiteDatabase = this.writableDatabase
         val cursor = db.rawQuery(query, null)

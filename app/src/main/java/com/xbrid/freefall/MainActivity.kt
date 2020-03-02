@@ -9,14 +9,19 @@ import androidx.appcompat.app.AppCompatActivity
 import com.xbrid.freefalldetector.db.DatabaseHelper
 import com.xbrid.freefalldetector.services.DetectedActivitiesIntentService
 import com.xbrid.freefalldetector.utils.Constants
-import com.xbrid.freefalldetector.utils.showToast
+import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        setupRecycleView()
         startService(Intent(this, DetectedActivitiesIntentService::class.java))
+    }
+
+    private fun setupRecycleView() {
+        recycler.adapter = DetectionAdaptor(DatabaseHelper(this@MainActivity).getAllEvents())
     }
 
     override fun onResume() {
@@ -31,8 +36,10 @@ class MainActivity : AppCompatActivity() {
                     ignoreCase = true
                 )
             ) {
-                val size = DatabaseHelper(this@MainActivity).getAllEvents()?.size
-                showToast(size.toString())
+                // we can only up update newly added item only
+                recycler.adapter =
+                    DetectionAdaptor(DatabaseHelper(this@MainActivity).getAllEvents())
+                (recycler.adapter as DetectionAdaptor).notifyDataSetChanged()
             }
         }
     }

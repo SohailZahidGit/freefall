@@ -8,11 +8,8 @@ import android.hardware.SensorManager
 import android.os.Bundle
 import android.os.Handler
 import android.os.Message
-import android.util.Log
 import com.xbrid.freefalldetector.db.DatabaseHelper
 import com.xbrid.freefalldetector.utils.DetectionEvent
-import java.sql.Timestamp
-import java.time.Duration
 import kotlin.math.abs
 import kotlin.math.sqrt
 
@@ -28,9 +25,6 @@ class Accelerometer(
     private var mAccelLast = SensorManager.GRAVITY_EARTH
     private var mAccel = 0.00f
     private var duration: Long = System.currentTimeMillis()
-    private val DETECTION_CASE_X = 0
-    private val DETECTION_CASE_Y = 1
-    private val DETECTION_CASE_Z = 2
 
     fun startListening() {
         mSensorManager.registerListener(
@@ -64,6 +58,7 @@ class Accelerometer(
     private fun handleCases(isFreeFallDetected: Boolean) {
         if (isFreeFallDetected) {
             if ((mAccelLast - mAccelCurrent) > fallThreshold) {
+                mHandler.removeCallbacksAndMessages(null)
                 mHandler.postDelayed(Runnable {
                     mHandler.dispatchMessage(Message().apply {
                         data.apply {
@@ -72,9 +67,9 @@ class Accelerometer(
                             }
                         }
                     })
+                    duration = System.currentTimeMillis() - duration
+                    saveRecordIntoDB(duration = duration.toString())
                 }, 1000)
-                duration = System.currentTimeMillis() - duration
-//                saveRecordIntoDB(duration = duration.toString())
             }
         }
     }

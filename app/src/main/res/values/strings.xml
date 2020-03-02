@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Free Fall</string>
+    <string name="detection_list">Detection list</string>
 </resources>
