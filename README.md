@@ -15,11 +15,13 @@ To use `FreeFallDetector` follow given instructions
  - Extend your application class with `FreeFallApplication` class which will initialize
      free fall detector.
      
-     ```xml
-             <application android:name="com.xbrid.freefalldetector.utils.FreeFallApplication">
-                
-             </application>
-     ```
+```xml
+<application android:name="com.xbrid.freefalldetector.utils.FreeFallApplication">
+<!-- other stuff here -->
+</application>
+```
+
+or
 
 ```kotlin
 class MyApplication : FreeFallApplication()
@@ -29,16 +31,15 @@ class MyApplication : FreeFallApplication()
  - Register receiver:  
      allows you to set the maximum scale of center top page.
      
-     ```xml
-             <receiver android:name=".receiver.FreeFallDetectReceiver">
-                 <intent-filter>
-                     <action android:name="free.fall.detected" />
-                 </intent-filter>
-             </receiver>
-     ```
+```xml
+<receiver android:name=".receiver.FreeFallDetectReceiver">
+   <intent-filter>
+       <action android:name="free.fall.detected" />
+   </intent-filter>
+</receiver>
+```
     
-   
-you can get the list of all detection like this.
+You can get the list of all detection like this.
   
 ```kotlin
 val detectionList = DatabaseHelper(context).getAllEvents()
